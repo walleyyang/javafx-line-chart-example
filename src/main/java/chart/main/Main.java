@@ -8,7 +8,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 /**
- * The Main class.
+ * The Main.
  */
 public class Main extends Application {
 
