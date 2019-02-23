@@ -12,6 +12,8 @@ import javafx.scene.layout.VBox;
  * The ChartView.
  */
 public class ChartView {
+  
+  ChartViewModel chartViewModel;
 
   @FXML
   private HBox mainContainer;
@@ -35,7 +37,7 @@ public class ChartView {
   private ScrollPane itemsScrollPane;
 
   @FXML
-  private ListView<?> itemsListView;
+  private ListView<String> itemsListView;
 
   @FXML
   private VBox rightContainer;
@@ -50,7 +52,29 @@ public class ChartView {
    * The constructor.
    */
   public ChartView() {
-
+    chartViewModel = new ChartViewModel();
+  }
+  
+  /**
+   * The initialize method.
+   */
+  public void initialize() {
+    bindProperties();
+    handleEvents();
+  }
+  
+  /**
+   * Contains the binded properties.
+   */
+  private void bindProperties() {
+    itemsListView.itemsProperty().bindBidirectional(chartViewModel.getItemsProperty());
+  }
+  
+  /**
+   * Handles the events.
+   */
+  private void handleEvents() {
+    newItemButton.setOnAction(e -> chartViewModel.addNewItem());
   }
 
 }
