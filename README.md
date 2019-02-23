@@ -1,0 +1,1 @@
+Set Maven Run Configuration Goals to clean compile exec:java
