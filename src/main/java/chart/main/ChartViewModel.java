@@ -10,12 +10,14 @@ import javafx.collections.FXCollections;
 public class ChartViewModel {
 
   private ListProperty<String> items;
-  
+  private ListProperty<Chart> charts;
+
   /**
    * The constructor.
    */
   public ChartViewModel() {
     items = new SimpleListProperty<>(FXCollections.observableArrayList());
+    charts = new SimpleListProperty<>(FXCollections.observableArrayList());
   }
 
   /**
@@ -24,7 +26,16 @@ public class ChartViewModel {
   public void addNewItem() {
     items.add("Chart " + (items.getSize() + 1));
   }
-  
+
+  /**
+   * Adds new chart.
+   * 
+   * @param title The title
+   */
+  public void addNewChart(String title) {
+    charts.add(new Chart(title));
+  }
+
   /**
    * Gets the items.
    * 
@@ -32,6 +43,15 @@ public class ChartViewModel {
    */
   public ListProperty<String> getItemsProperty() {
     return items;
+  }
+
+  /**
+   * Gets the charts.
+   * 
+   * @return The charts
+   */
+  public ListProperty<Chart> getChartsProperty() {
+    return charts;
   }
 
 }

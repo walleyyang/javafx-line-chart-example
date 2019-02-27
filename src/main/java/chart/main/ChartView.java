@@ -65,7 +65,7 @@ public class ChartView {
   }
   
   /**
-   * Contains the binded properties.
+   * Contains the bound properties.
    */
   private void bindProperties() {
     itemsListView.itemsProperty().bindBidirectional(chartViewModel.getItemsProperty());
@@ -79,9 +79,14 @@ public class ChartView {
     
     itemsListView.setOnMouseClicked(e -> {
       if (CommonUtils.doubleClicked(e)) {
-        System.out.println(itemsListView.getSelectionModel().selectedItemProperty().getValue());
+        chartViewModel
+          .addNewChart(itemsListView.getSelectionModel().selectedItemProperty().getValue());
       }
     });
   }
+  
+  /**
+   * Creates the charts
+   */
 
 }
