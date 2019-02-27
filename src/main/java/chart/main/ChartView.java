@@ -1,5 +1,6 @@
 package chart.main;
 
+import chart.common.ui.util.CommonUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -75,6 +76,12 @@ public class ChartView {
    */
   private void handleEvents() {
     newItemButton.setOnAction(e -> chartViewModel.addNewItem());
+    
+    itemsListView.setOnMouseClicked(e -> {
+      if (CommonUtils.doubleClicked(e)) {
+        System.out.println(itemsListView.getSelectionModel().selectedItemProperty().getValue());
+      }
+    });
   }
 
 }
