@@ -2,6 +2,9 @@ package chart.main;
 
 import chart.common.ui.util.CommonUtils;
 import javafx.fxml.FXML;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
@@ -81,6 +84,8 @@ public class ChartView {
       if (CommonUtils.doubleClicked(e)) {
         chartViewModel
           .addNewChart(itemsListView.getSelectionModel().selectedItemProperty().getValue());
+      
+        createChart();
       }
     });
   }
@@ -88,5 +93,21 @@ public class ChartView {
   /**
    * Creates the charts
    */
+  private void createChart() {
+    NumberAxis xAxis = new NumberAxis();
+    NumberAxis yAxis = new NumberAxis();
+    XYChart.Series series = new XYChart.Series<>();
+    LineChart lineChart = new LineChart(xAxis, yAxis);
+    
+    chartViewModel.getChartsProperty().forEach(chart -> {
+      chart.getData().forEach(number -> {
+        series.getData().add(new XYChart.Data<>(number, number));
+      });
+      
+      lineChart.getData().add(series);
+    });
+    
+    smallChartsFlowPane.getChildren().add(lineChart);
+  }
 
 }
