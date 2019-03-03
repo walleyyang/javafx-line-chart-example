@@ -1,57 +1,64 @@
 package chart.main;
 
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.collections.FXCollections;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * The ChartViewModel.
  */
 public class ChartViewModel {
 
-  private ListProperty<String> items;
-  private ListProperty<Chart> charts;
+  private Map<String, List<Integer>> data;
+  private int seriesCounter;
+  private Random random;
 
   /**
    * The constructor.
    */
   public ChartViewModel() {
-    items = new SimpleListProperty<>(FXCollections.observableArrayList());
-    charts = new SimpleListProperty<>(FXCollections.observableArrayList());
+    data = new HashMap<>();
+    seriesCounter = 0;
+    random = new Random();
+
+    addNewSeries();
   }
 
   /**
-   * Adds new items list.
+   * Adds new series to the chart.
    */
-  public void addNewItem() {
-    items.add("Chart " + (items.getSize() + 1));
+  public void addNewSeries() {
+    String series = "Series " + seriesCounter++;
+    List<Integer> randomData = createRandomData();
+
+    data.put(series, randomData);
   }
 
   /**
-   * Adds new chart.
+   * Creates the random data for a series.
    * 
-   * @param title The title
+   * @return A list of random integer data.
    */
-  public void addNewChart(String title) {
-    charts.add(new Chart(title));
+  private List<Integer> createRandomData() {
+    int size = 50;
+    List<Integer> randomData = new ArrayList<>();
+
+    for (int i = 0; i < size; i++) {
+      randomData.add(random.nextInt(size) + 1);
+    }
+
+    return randomData;
   }
 
   /**
-   * Gets the items.
+   * Gets the data for the chart.
    * 
-   * @return The items
+   * @return The data.
    */
-  public ListProperty<String> getItemsProperty() {
-    return items;
-  }
-
-  /**
-   * Gets the charts.
-   * 
-   * @return The charts
-   */
-  public ListProperty<Chart> getChartsProperty() {
-    return charts;
+  public Map<String, List<Integer>> getData() {
+    return data;
   }
 
 }
