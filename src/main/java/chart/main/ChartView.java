@@ -1,10 +1,14 @@
 package chart.main;
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -18,6 +22,21 @@ public class ChartView {
 
   @FXML
   private VBox mainContainer;
+
+  @FXML
+  private VBox sliderContainer;
+
+  @FXML
+  private Label lowRangeLabel;
+
+  @FXML
+  private HBox sliderLowRangeContainer;
+
+  @FXML
+  private HBox sliderHighRangeContainer;
+
+  @FXML
+  private Label highRangeLabel;
 
   @FXML
   private HBox chartContainer;
@@ -58,18 +77,65 @@ public class ChartView {
     NumberAxis yAxis = new NumberAxis();
     XYChart.Series<Number, Number> series = new XYChart.Series<>();
     LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
+    List<Integer> seriesRange = new ArrayList<>();
 
     HBox.setHgrow(lineChart, Priority.ALWAYS);
 
     chartViewModel.getData().forEach((k, v) -> {
       for (int i = 0; i < v.size(); i++) {
-        series.getData().add(new XYChart.Data<Number, Number>(i + 1, v.get(i)));
+        series.getData().add(new XYChart.Data<Number, Number>(i, v.get(i)));
+        seriesRange.add(i);
       }
 
       lineChart.getData().add(series);
     });
 
+    createSlider(seriesRange);
     chartContainer.getChildren().add(lineChart);
+  }
+
+  private void createSlider(List<Integer> seriesRange) {
+    System.out.println(seriesRange);
+    int min = seriesRange.get(0);
+    int max = seriesRange.get(seriesRange.size() - 1);
+    
+    Slider sliderLowRange = new Slider();
+    sliderLowRange.setValue(min);
+    sliderLowRange.setMin(min);
+    sliderLowRange.setMax(max);
+    sliderLowRange.setShowTickLabels(true);
+    sliderLowRange.setShowTickMarks(true);
+    sliderLowRange.setSnapToTicks(true);
+    sliderLowRange.setMajorTickUnit(10);
+
+    Slider sliderHighRange = new Slider();
+    sliderHighRange.setValue(max);
+    sliderHighRange.setMin(min);
+    sliderHighRange.setMax(max);
+    sliderHighRange.setShowTickLabels(true);
+    sliderHighRange.setShowTickMarks(true);
+    sliderHighRange.setSnapToTicks(true);
+    sliderHighRange.setMajorTickUnit(10);
+
+    lowRangeLabel.setText(Double.toString(sliderLowRange.getValue()));
+    highRangeLabel.setText(Double.toString(sliderHighRange.getValue()));
+
+    sliderLowRange.valueProperty().addListener(e -> {
+      System.out.println(sliderLowRange.getValue());
+      lowRangeLabel.setText(Double.toString(sliderLowRange.getValue()));
+    });
+
+    sliderHighRange.valueProperty().addListener(e -> {
+      highRangeLabel.setText(Double.toString(sliderHighRange.getValue()));
+    });
+
+    sliderLowRangeContainer.getChildren().add(sliderLowRange);
+    sliderHighRangeContainer.getChildren().add(sliderHighRange);
+
+    HBox.setHgrow(sliderLowRange, Priority.ALWAYS);
+    HBox.setHgrow(sliderLowRangeContainer, Priority.ALWAYS);
+    HBox.setHgrow(sliderHighRange, Priority.ALWAYS);
+    HBox.setHgrow(sliderHighRangeContainer, Priority.ALWAYS);
   }
 
 }
