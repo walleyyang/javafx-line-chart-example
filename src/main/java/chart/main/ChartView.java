@@ -3,7 +3,6 @@ package chart.main;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
@@ -76,8 +75,9 @@ public class ChartView {
     NumberAxis xAxis = new NumberAxis();
     NumberAxis yAxis = new NumberAxis();
     XYChart.Series<Number, Number> series = new XYChart.Series<>();
-    LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
+    CustomLineChart<Number, Number> lineChart = new CustomLineChart<>(xAxis, yAxis);
     List<Integer> seriesRange = new ArrayList<>();
+    List<Number> xPositions = new ArrayList<>();
 
     HBox.setHgrow(lineChart, Priority.ALWAYS);
 
@@ -89,16 +89,33 @@ public class ChartView {
 
       lineChart.getData().add(series);
     });
+    
+    lineChart.setOnMousePressed(mousePressedEvent -> {
+      System.out.println("pressed!");
+      xPositions.add(xAxis.getValueForDisplay(mousePressedEvent.getX()));
+    });
+    
+    lineChart.setOnMouseReleased(mouseReleasedEvent -> {
+      System.out.println("released!");
+      xPositions.add(xAxis.getValueForDisplay(mouseReleasedEvent.getX()));
+      
+      System.out.println(xPositions);
+    });
 
-    createSlider(seriesRange);
+    createSliders(seriesRange);
     chartContainer.getChildren().add(lineChart);
   }
 
-  private void createSlider(List<Integer> seriesRange) {
+  /**
+   * Creates the high and low sliders.
+   * 
+   * @param seriesRange The series range
+   */
+  private void createSliders(List<Integer> seriesRange) {
     System.out.println(seriesRange);
     int min = seriesRange.get(0);
     int max = seriesRange.get(seriesRange.size() - 1);
-    
+
     Slider sliderLowRange = new Slider();
     sliderLowRange.setValue(min);
     sliderLowRange.setMin(min);
