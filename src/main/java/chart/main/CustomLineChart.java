@@ -80,7 +80,7 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
     rectangle.getStyleClass().add("vertical-range-lines");
     node.setNode(rectangle);
     getPlotChildren().add(rectangle);
-    
+
     verticalRangeLines.add(node);
   }
 
