@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
@@ -15,7 +16,6 @@ import javafx.scene.shape.Rectangle;
 
 public class CustomLineChart<X, Y> extends LineChart<X, Y> {
 
-  private ObservableList<Data<X, Y>> verticalLines;
   private ObservableList<Data<X, X>> verticalRangeLines;
 
   /**
@@ -27,43 +27,9 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
   public CustomLineChart(Axis<X> xAxis, Axis<Y> yAxis) {
     super(xAxis, yAxis);
 
-    verticalLines =
-        FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
-    verticalLines.addListener((InvalidationListener) observable -> layoutPlotChildren());
-
     verticalRangeLines =
         FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
     verticalRangeLines.addListener((InvalidationListener) observable -> layoutPlotChildren());
-  }
-
-  /**
-   * Add the vertical line.
-   * 
-   * @param node The vertical line node
-   */
-  public void addVerticalLine(Data<X, Y> node) {
-    if (verticalLines.contains(node)) {
-      return;
-    }
-
-    Line line = new Line();
-    node.setNode(line);
-    getPlotChildren().add(line);
-    verticalLines.add(node);
-  }
-
-  /**
-   * Removes the vertical line.
-   * 
-   * @param node The vertical line node
-   */
-  public void removeVerticalLine(Data<X, Y> node) {
-    if (node.getNode() != null) {
-      getPlotChildren().remove(node.getNode());
-      node.setNode(null);
-    }
-
-    verticalLines.remove(node);
   }
 
   /**
@@ -72,16 +38,22 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
    * @param node The vertical range line node
    */
   public void addVerticalRangeLines(Data<X, X> node) {
-    if (verticalRangeLines.contains(node)) {
-      return;
+    if (!verticalRangeLines.isEmpty()) {
+      if (!node.getXValue().equals(verticalRangeLines.get(0).getXValue())) {
+        verticalRangeLines.get(0).setXValue(node.getXValue());
+      }
+
+      verticalRangeLines.get(0).setYValue(node.getYValue());
+    } else {
+      Rectangle rectangle = new Rectangle(0, 0, 0, 0);
+      rectangle.setStroke(Color.TRANSPARENT);
+      rectangle.setFill(Color.ALICEBLUE.deriveColor(1, 1, 1, 0.2));
+
+      node.setNode(rectangle);
+
+      getPlotChildren().add(rectangle);
+      verticalRangeLines.add(node);
     }
-
-    Rectangle rectangle = new Rectangle(0, 0, 0, 0);
-    rectangle.getStyleClass().add("vertical-range-lines");
-    node.setNode(rectangle);
-    getPlotChildren().add(rectangle);
-
-    verticalRangeLines.add(node);
   }
 
   /**
@@ -90,37 +62,28 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
    * @param node The vertical range line node
    */
   public void removeVerticalRangeLines(Data<X, X> node) {
-    if (node.getNode() != null) {
-      getPlotChildren().remove(node.getNode());
-      node.setNode(null);
+    for (int i = 0; i < verticalRangeLines.size(); i++) {
+      verticalRangeLines.remove(i);
+      getPlotChildren().remove(i);
     }
-
-    verticalRangeLines.remove(node);
   }
 
   @Override
   protected void layoutPlotChildren() {
     super.layoutPlotChildren();
 
-    double number = 5;
+    for (Data<X, X> verticalRangeLine : verticalRangeLines) {
+      double xStart = getXAxis().getDisplayPosition(verticalRangeLine.getXValue());
+      double xEnd = getXAxis().getDisplayPosition(verticalRangeLine.getYValue()) - xStart;
 
-    for (Data<X, Y> verticalMarker : verticalLines) {
-      Line line = (Line) verticalMarker.getNode();
-      line.setStartX(getXAxis().getDisplayPosition(verticalMarker.getXValue()) + number);
-      line.setEndX(line.getStartX());
-      line.setStartY(0d);
-      line.setEndY(getBoundsInLocal().getHeight());
-      line.toFront();
-    }
+      System.out.println("xStart: " + xStart);
+      System.out.println("xEnd: " + xEnd);
 
-    for (Data<X, X> verticalRangeMarker : verticalRangeLines) {
-
-      Rectangle rectangle = (Rectangle) verticalRangeMarker.getNode();
-      rectangle.setX(getXAxis().getDisplayPosition(verticalRangeMarker.getXValue()) + number);
-      rectangle.setWidth(getXAxis().getDisplayPosition(verticalRangeMarker.getYValue())
-          - getXAxis().getDisplayPosition(verticalRangeMarker.getXValue()));
+      Rectangle rectangle = (Rectangle) verticalRangeLine.getNode();
+      rectangle.setX(0);
       rectangle.setY(0d);
       rectangle.setHeight(getBoundsInLocal().getHeight());
+      rectangle.setWidth(30);
       rectangle.toBack();
     }
   }
