@@ -2,13 +2,12 @@ package chart.main;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -23,6 +22,7 @@ public class ChartController {
   private NumberAxis xAxis;
   private NumberAxis yAxis;
   private XYChart.Series<Number, Number> series;
+  private List<Integer> data;
   private boolean mouseDragged;
   private double initialNumberStart;
   private double initialNumberEnd;
@@ -32,7 +32,6 @@ public class ChartController {
 
   @FXML
   private HBox chartContainer;
-
 
   /**
    * The constructor.
@@ -67,11 +66,11 @@ public class ChartController {
         double draggedX = xAxis.sceneToLocal(draggedSceneCoordinate).getX();
 
         List<Double> numbers = filterSeries(firstX, draggedX);
-        double numberStart = numbers.size() > minSize ? numbers.get(0) : initialNumberStart;
-        double numberEnd =
-            numbers.size() > minSize ? numbers.get(numbers.size() - 1) : initialNumberEnd;
+        int size = numbers.size();
+        double numberStart = size > minSize ? numbers.get(0) : initialNumberStart;
+        double numberEnd = numbers.size() > minSize ? numbers.get(size - 1) : initialNumberEnd;
 
-        if (numbers.size() > minSize) {
+        if (size > minSize) {
           lineChart.addVerticalRangeLines(new Data<>(numberStart, numberEnd));
         }
 
@@ -79,9 +78,9 @@ public class ChartController {
           if (mouseDragged) {
             initialNumberStart = numberStart;
             initialNumberEnd = numberEnd;
-            // redrawChart();
             mouseDragged = false;
-            
+
+            redrawChart();
           }
         });
       });
@@ -94,23 +93,35 @@ public class ChartController {
   private void createChart() {
     xAxis = new NumberAxis();
     yAxis = new NumberAxis();
-    series = new XYChart.Series<>();
-    lineChart = new CustomLineChart<>(xAxis, yAxis);
-    
-    List<Integer> data = chartViewModel.getData();
-    
-    for (int i = 0; i < data.size(); i++) {
-      series.getData().add(new XYChart.Data<Number, Number>(i, data.get(i)));
-    }
 
+    lineChart = new CustomLineChart<>(xAxis, yAxis);
+
+    data = chartViewModel.getData();
+
+    createSeries(data);
     lineChart.getData().add(series);
-    
+
     initialNumberStart = 1;
     initialNumberEnd = data.size() - 1;
 
     chartContainer.getChildren().add(lineChart);
-    
+
     HBox.setHgrow(lineChart, Priority.ALWAYS);
+  }
+
+  /**
+   * Creates the series for the line chart.
+   * 
+   * @param numbers The list of numbers for the series
+   */
+  private void createSeries(List<Integer> numbers) {
+    int size = numbers.size();
+    series = new XYChart.Series<>();
+    series.setName("Example");
+
+    for (int i = 0; i < size; i++) {
+      series.getData().add(new XYChart.Data<Number, Number>(i, numbers.get(i)));
+    }
   }
 
   /**
@@ -131,8 +142,46 @@ public class ChartController {
         nodeXPositions.add(Double.parseDouble(node.getXValue().toString()));
       }
     });
-    
+
     return nodeXPositions;
+  }
+  
+  /**
+   * Updates the series for the chart.
+   */
+  private void updateSeries() {
+    lineChart.getData().remove(0);
+    lineChart.getData().add(series);
+  }
+
+  /**
+   * Redraws the chart.
+   */
+  private void redrawChart() {
+    List<Integer> filteredSeries = new ArrayList<>();
+
+    data.forEach(number -> {
+      if (number >= initialNumberStart && number <= initialNumberEnd) {
+        filteredSeries.add(number);
+      }
+    });
+
+    if (!filteredSeries.isEmpty()) {
+      createSeries(filteredSeries);
+      updateSeries();
+      lineChart.removeVerticalRangeLines();
+    }
+  }
+
+  /**
+   * Resets the series for the chart.
+   * 
+   * @param event The event
+   */
+  @FXML
+  void resetChart(ActionEvent event) {
+    createSeries(data);
+    updateSeries();
   }
 
 }

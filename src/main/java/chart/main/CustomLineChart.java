@@ -6,8 +6,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 /**
@@ -29,6 +27,8 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
 
     verticalRangeLines =
         FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
+    verticalRangeLines =
+        FXCollections.observableArrayList(data -> new Observable[] {data.YValueProperty()});
     verticalRangeLines.addListener((InvalidationListener) observable -> layoutPlotChildren());
   }
 
@@ -46,8 +46,7 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
       verticalRangeLines.get(0).setYValue(node.getYValue());
     } else {
       Rectangle rectangle = new Rectangle(0, 0, 0, 0);
-      rectangle.setStroke(Color.TRANSPARENT);
-      rectangle.setFill(Color.ALICEBLUE.deriveColor(1, 1, 1, 0.2));
+      rectangle.getStyleClass().add("vertical-range-lines");
 
       node.setNode(rectangle);
 
@@ -58,10 +57,8 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
 
   /**
    * Removes the vertical range lines.
-   * 
-   * @param node The vertical range line node
    */
-  public void removeVerticalRangeLines(Data<X, X> node) {
+  public void removeVerticalRangeLines() {
     for (int i = 0; i < verticalRangeLines.size(); i++) {
       verticalRangeLines.remove(i);
       getPlotChildren().remove(i);
@@ -76,14 +73,11 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
       double xStart = getXAxis().getDisplayPosition(verticalRangeLine.getXValue());
       double xEnd = getXAxis().getDisplayPosition(verticalRangeLine.getYValue()) - xStart;
 
-      System.out.println("xStart: " + xStart);
-      System.out.println("xEnd: " + xEnd);
-
       Rectangle rectangle = (Rectangle) verticalRangeLine.getNode();
-      rectangle.setX(0);
-      rectangle.setY(0d);
+      rectangle.setX(xStart);
+      rectangle.setY(0);
       rectangle.setHeight(getBoundsInLocal().getHeight());
-      rectangle.setWidth(30);
+      rectangle.setWidth(xEnd);
       rectangle.toBack();
     }
   }
