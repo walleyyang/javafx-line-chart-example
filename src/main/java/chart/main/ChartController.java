@@ -100,6 +100,9 @@ public class ChartController {
 
     createSeries(data);
     lineChart.getData().add(series);
+    // Test
+    lineChart.addHorizontalRangeLines(new Data<>(0, 15));
+    lineChart.addHorizontalRangeLines(new Data<>(0, 25));
 
     initialNumberStart = 1;
     initialNumberEnd = data.size() - 1;

@@ -1,11 +1,13 @@
 package chart.main;
 
+import java.util.Objects;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 /**
@@ -15,6 +17,7 @@ import javafx.scene.shape.Rectangle;
 public class CustomLineChart<X, Y> extends LineChart<X, Y> {
 
   private ObservableList<Data<X, X>> verticalRangeLines;
+  private ObservableList<Data<Y, Y>> horizontalRangeLines;
 
   /**
    * The constructor.
@@ -30,6 +33,8 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
     verticalRangeLines =
         FXCollections.observableArrayList(data -> new Observable[] {data.YValueProperty()});
     verticalRangeLines.addListener((InvalidationListener) observable -> layoutPlotChildren());
+    horizontalRangeLines = FXCollections.observableArrayList(data -> new Observable[] {data.YValueProperty()});
+    horizontalRangeLines.addListener((InvalidationListener) observable -> layoutPlotChildren());
   }
 
   /**
@@ -52,6 +57,17 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
 
       getPlotChildren().add(rectangle);
       verticalRangeLines.add(node);
+    }
+  }
+  
+  public void addHorizontalRangeLines(Data<Y, Y> node) {
+    if (horizontalRangeLines.contains(node)) {
+      return;
+    } else {
+      Line line = new Line();
+      node.setNode(line);;
+      getPlotChildren().add(line);
+      horizontalRangeLines.add(node);
     }
   }
 
@@ -79,6 +95,15 @@ public class CustomLineChart<X, Y> extends LineChart<X, Y> {
       rectangle.setHeight(getBoundsInLocal().getHeight());
       rectangle.setWidth(xEnd);
       rectangle.toBack();
+    }
+    
+    for (Data<Y, Y> horizontalRangeLine : horizontalRangeLines) {
+      Line line = (Line) horizontalRangeLine.getNode();
+      line.setStartX(0);
+      line.setEndX(getBoundsInLocal().getWidth());
+      line.setStartY(getYAxis().getDisplayPosition(horizontalRangeLine.getYValue()));
+      line.setEndY(line.getStartY());
+      line.toBack();
     }
   }
 
