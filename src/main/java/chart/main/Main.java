@@ -18,8 +18,10 @@ public class Main extends Application {
    * @param args The command line arguments
    */
   public static void main(String[] args) {
+    // Pipeline containing sw or j2d are software rendering and d3d or es2 are hardware accelerated.
+//    System.setProperty("prism.forceGPU", "True");
+    System.setProperty("prism.verbose", "True");
     launch(args);
-
   }
 
   /**
